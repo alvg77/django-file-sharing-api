@@ -18,9 +18,11 @@ class SignUpView(generics.GenericAPIView):
 
         if serializer.is_valid():            
             serializer.save()
+            tokens=create_jwt_pair_for_user(serializer.instance)
             response = {
                 'message': 'user created',
-                'data': serializer.data
+                'data': serializer.data,
+                'tokens': tokens
             }
 
             return Response(data=response, status=status.HTTP_201_CREATED)
@@ -47,14 +49,6 @@ class LoginView(APIView):
             return Response(data=response, status=status.HTTP_200_OK)
         
         return Response(data={'message': 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # def get(self, request: Request):
-        # content={
-        #     "user": str(request.user),
-        #     "auth": str(request.auth)
-        # }
-
-        # return Response(data=content, status=status.HTTP_200_OK)
 
 class PostRetrieveUpdateUserView(
     generics.GenericAPIView,
