@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 class Share(models.Model):
     id=models.BigAutoField(primary_key=True, null=False, auto_created=True)
-    filepath=models.CharField(max_length=1000, null=False)
+    filename=models.CharField(max_length=1000, null=False)
     shared_at=models.DateTimeField(auto_now=True)
     sender=models.ForeignKey('users.User', on_delete=models.CASCADE)
     reciever=models.ForeignKey('users.User', on_delete=models.CASCADE)
