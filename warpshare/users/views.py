@@ -1,7 +1,7 @@
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status, generics, mixins
-from rest_framework.decorators import APIView
+from rest_framework.decorators import APIView, api_view
 from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate
@@ -50,15 +50,20 @@ class LoginView(APIView):
         
         return Response(data={'message': 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
-class PostRetrieveUpdateUserView(APIView):
-    def get(self, request: Request):
-        user = request.user
+@api_view(['GET'])
+def getUser(self, request: Request, id: int):
+        user = User.objects.get(id=id)
         serializer = UserSerializer(user)
         response = {
             'message': 'user fetched',
             'data': serializer.data
         }
         return Response(data=response, status=status.HTTP_200_OK)
+
+class UpdateDeleteUserView(APIView):
+    permission_classes=[IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     
     def put(self, request: Request):
         user = request.user
