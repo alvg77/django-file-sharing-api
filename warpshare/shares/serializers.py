@@ -5,9 +5,9 @@ from users.models import User
 from .models import Share
 
 
-class ShareSerializers(serializers.ModelSerializer):
+class ShareSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    filepath = serializers.CharField(max_length=1000, null=False)
+    filepath = serializers.CharField(max_length=1000)
     shared_at = serializers.DateTimeField()
     sender = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     reciever = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())

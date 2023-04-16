@@ -28,8 +28,8 @@ class ListSharesView(generics.GenericAPIView):
     permission_classes=[IsAuthenticated]
     queryset=Share.objects.all()
 
-    def get(self, request: Request, id: int):
-        user = User.objects.get(id=id)
+    def get(self, request: Request):
+        user = request.user
         shares=self.get_queryset().filter(reciever=user)
         serializer=self.get_serializer(shares, many=True)
         response={
@@ -39,3 +39,17 @@ class ListSharesView(generics.GenericAPIView):
         return Response(data=response, status=status.HTTP_200_OK)
 
 
+class ListSharesHistoryView(generics.GenericAPIView):
+    serializer_class=ShareSerializer
+    permission_classes=[IsAuthenticated]
+    queryset=Share.objects.all()
+
+    def get(self, request: Request):
+        user = request.user
+        shares=self.get_queryset().filter(sender=user, reciever=user).order_by('shared_at')
+        serializer=self.get_serializer(shares, many=True)
+        response={
+            'message': 'shares fetched',
+            'data': serializer.data
+        }
+        return Response(data=response, status=status.HTTP_200_OK)
