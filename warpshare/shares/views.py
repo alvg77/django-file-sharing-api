@@ -16,6 +16,11 @@ class CreateShareView(generics.GenericAPIView):
     def post(self, request: Request):
         serializer=self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+       
+        if serializer.validated_data['reciever']==request.user:
+            return Response(data={'message': 'cannot share to self'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.validated_data['sender']=request.user
         serializer.save(sender=request.user)
         response={
             'message': 'share created',
