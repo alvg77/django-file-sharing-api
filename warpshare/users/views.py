@@ -50,26 +50,35 @@ class LoginView(APIView):
         
         return Response(data={'message': 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
-class PostRetrieveUpdateUserView(
-    generics.GenericAPIView,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin
-):
-    serializer_class=UserSerializer
-    queryset=User.objects.all()
-    lookup_field='id'
-    permission_classes=[IsAuthenticated]
-
+class PostRetrieveUpdateUserView(APIView):
     def get(self, request: Request):
-        user_id = request.user.id
-        return self.retrieve(request, user_id)
+        user = request.user
+        serializer = UserSerializer(user)
+        response = {
+            'message': 'user fetched',
+            'data': serializer.data
+        }
+        return Response(data=response, status=status.HTTP_200_OK)
     
     def put(self, request: Request):
-        user_id = request.user.id
-        return self.update(request, user_id)
+        user = request.user
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            response = {
+                'message': 'user updated',
+                'data': serializer.data
+            }
+
+            return Response(data=response, status=status.HTTP_200_OK)
+        
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request: Request):
-        user_id = request.user.id
-        return self.destroy(request, user_id)
+        user = request.user
+        user.delete()
+        response = {
+            'message': 'user deleted',
+        }
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
     

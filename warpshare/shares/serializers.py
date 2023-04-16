@@ -4,6 +4,10 @@ from rest_framework import serializers
 from users.models import User
 from .models import Share
 
+class ShareRequestSerializer(serializers.Serializer):
+    filename = serializers.CharField(max_length=1000)
+    reciever = serializers.EmailField()
+    shared_at = serializers.DateTimeField()
 
 class ShareSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
