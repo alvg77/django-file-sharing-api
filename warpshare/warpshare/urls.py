@@ -25,4 +25,5 @@ urlpatterns = router.urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('users.urls')),
+    path('share/', include('shares.urls')),
 ]
