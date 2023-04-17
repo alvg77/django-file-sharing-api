@@ -59,11 +59,12 @@ class ListSharesView(generics.GenericAPIView):
 
     def get(self, request: Request):
         user = request.user
+
         shares=self.get_queryset().filter(reciever=user)
 
         serializer=self.get_serializer(shares, many=True)
         for share in serializer.data:
-            share['url'] = os.getenv('AWS_ENDPOINT_URL') + '/' + os.getenv('AWS_STORAGE_BUCKET_NAME') + '/' + user.email + '/' + share['filename']
+            share['url'] = os.getenv('AWS_STORAGE_BUCKET_URL') + '/' + user.email + '/' + share['filename']
         
         response={
             'message': 'shares fetched',
