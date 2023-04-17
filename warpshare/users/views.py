@@ -1,11 +1,11 @@
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status, generics, mixins
-from rest_framework.decorators import APIView, api_view
+from rest_framework.decorators import APIView, api_view, permission_classes
 from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate
-from .tokens import create_jwt_pair_for_user
+from .tokens import create_jwt_for_user
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 
 class SignUpView(generics.GenericAPIView):
@@ -18,11 +18,11 @@ class SignUpView(generics.GenericAPIView):
 
         if serializer.is_valid():            
             serializer.save()
-            tokens=create_jwt_pair_for_user(serializer.instance)
+            token=create_jwt_for_user(serializer.instance)
             response = {
                 'message': 'user created',
                 'data': serializer.data,
-                'tokens': tokens
+                'token': token['access'],
             }
 
             return Response(data=response, status=status.HTTP_201_CREATED)
@@ -40,10 +40,10 @@ class LoginView(APIView):
         user=authenticate(email=email, password=password)
         
         if user is not None:
-            tokens=create_jwt_pair_for_user(user)
+            tokens=create_jwt_for_user(user)
             response = {
                 'message': 'user logged in',
-                'tokens': tokens
+                'token': tokens['access'],
             }
 
             return Response(data=response, status=status.HTTP_200_OK)
@@ -51,6 +51,7 @@ class LoginView(APIView):
         return Response(data={'message': 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([])
 def getUser(self, request: Request, id: int):
         user = User.objects.get(id=id)
         serializer = UserSerializer(user)

@@ -2,40 +2,55 @@ from django.shortcuts import render
 from rest_framework import status, generics
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import FileUploadParser
 from .models import Share
 from .serializers import ShareSerializer, ShareRequestSerializer
 from users.models import User
 from django.db.models import Q
+import uuid
+import boto3
+import os
+import datetime
 
-# Create your views here.
-class CreateShareView(generics.GenericAPIView):
+class FileShareView(APIView):
+    parser_classes = (FileUploadParser,)
     serializer_class=ShareRequestSerializer
     permission_classes=[IsAuthenticated]
     queryset=Share.objects.all()
 
-    def post(self, request: Request):
-        serializer=self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-       
-        if serializer['reciever'].value==request.user.email:
-            return Response(data={'message': 'cannot share to self'}, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, filename, format=None):
+        file_obj = request.FILES['file']
         
-        share = Share(
-            filename=serializer['filename'].value,
-            shared_at=serializer['shared_at'].value,
-            sender=request.user,
-            reciever=User.objects.get(email=serializer['reciever'].value)
+        client = boto3.client('s3',
+                            region_name='fra1',
+                                endpoint_url=os.getenv('AWS_ENDPOINT_URL'),
+                                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+                                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
         )
 
-        share.save()
+        if request.user.id == request.query_params['reciever']:
+            return Response(data={'message': 'cannot share to self'}, status=status.HTTP_400_BAD_REQUEST)
         
-        response={
-            'message': 'share created',
-            'data': serializer.data
-        }
+        unique_filename = uuid.uuid4().hex + filename
 
-        return Response(data=response, status=status.HTTP_201_CREATED)
+        share = Share(
+            filename=unique_filename,
+            shared_at=datetime.datetime.now(),
+            sender=request.user,
+            reciever=User.objects.get(id=request.query_params.get('reciever'))
+        )
+
+        if share.reciever is None:
+            return Response(data={'message': 'user does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        share.save()
+
+        client.put_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=request.user.email + '/' + unique_filename, Body=file_obj)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 class ListSharesView(generics.GenericAPIView):
     serializer_class=ShareSerializer
