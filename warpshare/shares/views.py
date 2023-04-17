@@ -48,7 +48,7 @@ class FileShareView(APIView):
 
         share.save()
 
-        client.put_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=request.user.email + '/' + unique_filename, Body=file_obj, ACL='public-read')
+        client.put_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=share.reciever.email + '/' + unique_filename, Body=file_obj, ACL='public-read')
 
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -60,15 +60,16 @@ class ListSharesView(generics.GenericAPIView):
     def get(self, request: Request):
         user = request.user
         shares=self.get_queryset().filter(reciever=user)
+
         serializer=self.get_serializer(shares, many=True)
         for share in serializer.data:
-            share['url'] = os.getenv('AWS_ENDPOINT_URL') + '/' + os.getenv('AWS_STORAGE_BUCKET_NAME') + '/' + share['reciever'] + '/' + share['filename']
+            share['url'] = os.getenv('AWS_ENDPOINT_URL') + '/' + os.getenv('AWS_STORAGE_BUCKET_NAME') + '/' + user.email + '/' + share['filename']
         
         response={
             'message': 'shares fetched',
             'data': serializer.data
         }
-        
+
         return Response(data=response, status=status.HTTP_200_OK)
 
 
