@@ -21,46 +21,70 @@ spec:
         - containerPort: 8000
         env:
         - name: SECRET_KEY
-          value: "jkbfalbeiafbyivpfya760qu82q3r72p9qr2r7q8g"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: SECRET_KEY
         - name: DEBUG
-          value: "1"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DEBUG
         - name: DJANGO_ALLOWED_HOSTS
-          value: "*"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DJANGO_ALLOWED_HOSTS
         - name: DB_USER
-          value: "root"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DB_USER
         - name: DB_PASSWORD
-          value: ""
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DB_PASSWORD
         - name: DB_NAME
-          value: "warpshare"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DB_NAME
         - name: DB_HOST
-          value: "localhost"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DB_HOST
         - name: DB_PORT
-          value: "3306"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: DB_PORT
         - name: AWS_ACCESS_KEY_ID
-          value: "DO00BT87WNRKHH8GPFQC"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: AWS_ACCESS_KEY_ID
         - name: AWS_SECRET_ACCESS_KEY
-          value: "SobKd9c5qt8n4Q90i2YdnlE1wN3ajD3bSLtatX7fJlw"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: AWS_SECRET_ACCESS_KEY
         - name: AWS_STORAGE_BUCKET_NAME
-          value: "warp-share"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: AWS_STORAGE_BUCKET_NAME
         - name: AWS_ENDPOINT_URL
-          value: "https://fra1.digitaloceanspaces.com"
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: AWS_ENDPOINT_URL
         - name: AWS_STORAGE_BUCKET_URL
-          value: "https://warp-share.fra1.digitaloceanspaces.com"
-        - name: USER_NAME
           valueFrom:
             secretKeyRef:
-              name: db-secret
-              key: db-user
-        - name: USER_PWD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: db-password 
-        - name: DB_URL
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-url
+              name: my-secret
+              key: AWS_STORAGE_BUCKET_URL
 ---
 apiVersion: v1
 kind: Service
