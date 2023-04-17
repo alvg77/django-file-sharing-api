@@ -20,6 +20,32 @@ spec:
         ports:
         - containerPort: 8000
         env:
+        - name: SECRET_KEY
+          value: "jkbfalbeiafbyivpfya760qu82q3r72p9qr2r7q8g"
+        - name: DEBUG
+          value: "1"
+        - name: DJANGO_ALLOWED_HOSTS
+          value: "*"
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: ""
+        - name: DB_NAME
+          value: "warpshare"
+        - name: DB_HOST
+          value: "localhost"
+        - name: DB_PORT
+          value: "3306"
+        - name: AWS_ACCESS_KEY_ID
+          value: "DO00BT87WNRKHH8GPFQC"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "SobKd9c5qt8n4Q90i2YdnlE1wN3ajD3bSLtatX7fJlw"
+        - name: AWS_STORAGE_BUCKET_NAME
+          value: "warp-share"
+        - name: AWS_ENDPOINT_URL
+          value: "https://fra1.digitaloceanspaces.com"
+        - name: AWS_STORAGE_BUCKET_URL
+          value: "https://warp-share.fra1.digitaloceanspaces.com"
         - name: USER_NAME
           valueFrom:
             secretKeyRef:
